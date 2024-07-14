@@ -1,6 +1,6 @@
 # database/db_vectorize.py
 
-import numpy as np
+from langchain_community.vectorstores import Chroma
 import chromadb
 import uuid
 from sentence_transformers import SentenceTransformer
@@ -12,12 +12,13 @@ def create_chroma_index():
     client = chromadb.Client()
     collection_name = 'papers_collection'
 
-    # Проверка существования коллекции
+    '''# Проверка существования коллекции
     if collection_name in client.list_collections():
         collection = client.get_collection(collection_name)
     else:
-        collection = client.create_collection(collection_name)
+        collection = client.create_collection(collection_name)'''
 
+    collection = client.get_or_create_collection(collection_name)
     # Загрузка предобученной модели для преобразования текстов в векторы
     model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 

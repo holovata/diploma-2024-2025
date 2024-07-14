@@ -9,18 +9,18 @@ from retriever.query_retriever import self_query_search
 
 def main():
     # Создание таблиц
-    # create_tables()
+    create_tables()
 
     # Очистка таблицы перед вставкой новых данных
-    # clear_table("keyword_papers_list")
+    clear_table("keyword_papers_list")
 
     # Получение и вставка данных из arXiv по ключевому слову
-    # keyword = "machine learning"  # Измените на нужное ключевое слово
-    # fetch_and_store_papers(keyword, max_results=50)
+    keyword = "machine learning"  # Измените на нужное ключевое слово
+    fetch_and_store_papers(keyword, max_results=50)
 
     # Создание векторного индекса
     client, collection, papers = create_chroma_index()
-
+    print(collection.count())
     # Выполнение поиска по векторному индексу
     # query = "find articles, where application of machine learning in medical diagnostics is mentioned"  # Пример поискового запроса
     query = "Найди статьи за 2023 год по теме машинного обучения"
