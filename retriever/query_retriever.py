@@ -1,3 +1,5 @@
+#query_retriever.py
+
 from langchain_community.llms import Ollama
 from langchain.llms import BaseLLM
 from langchain.retrievers.self_query.base import SelfQueryRetriever
@@ -59,3 +61,4 @@ def self_query_search(query, collection):
     # Выполнение запроса
     results = retriever.retrieve(query)
     return results
+
