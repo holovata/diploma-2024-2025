@@ -1,10 +1,13 @@
-from langchain_chroma import Chroma
-from langchain.llms import Ollama
+from langchain_community.vectorstores import Chroma
+from langchain_community.llms import Ollama
 from langchain_core.documents import Document
-import ollama
 import chromadb
+from typing import List
 from langchain.chains.query_constructor.base import AttributeInfo
 from langchain.retrievers.self_query.base import SelfQueryRetriever
+from chromadb.utils import embedding_functions
+from langchain.embeddings.base import Embeddings
+from sentence_transformers import SentenceTransformer
 
 # Define documents with their metadata
 documents = [
@@ -43,41 +46,30 @@ documents = [
 client = chromadb.Client()
 collection = client.create_collection(name="docs")
 
-# Add documents to the vector store using Ollama embeddings
-for i, d in enumerate(documents):
-    response = ollama.embeddings(model="nomic-embed-text", prompt=d.page_content)
-    embedding = response["embedding"]
-    collection.add(
-        ids=[str(i)],
-        embeddings=[embedding],
-        metadatas=[d.metadata],
-        documents=[d.page_content]
-    )
+# Define the custom embeddings class
+class CustomEmbeddings(Embeddings):
+    def __init__(self, model_name: str):
+        self.model = SentenceTransformer(model_name)
 
-# Debug: Print the documents added to the collection
-print("Documents added to the collection:")
-for doc in collection.get():
-    print(doc)
+    def embed_documents(self, documents: List[str]) -> List[List[float]]:
+        return [self.model.encode(d).tolist() for d in documents]
+
+    def embed_query(self, query: str) -> List[float]:
+        return self.model.encode([query])[0].tolist()
+
+# Create the custom embedding function
+embedding_model = CustomEmbeddings(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
 '''
-# Example query
-prompt = "What animals are llamas related to?"
+# Load documents into Chroma with custom embeddings
+vectorStore = Chroma.from_documents(
+    documents=documents,
+    collection_name="dcd_store",
+    embedding=embedding_model,
+    persist_directory="../chroma_store2"
+)'''
 
-# Generate embedding for the query and retrieve the most relevant document
-response = ollama.embeddings(
-    prompt=prompt,
-    model="nomic-embed-text"
-)
-query_embedding = response["embedding"]
-results = collection.query(
-    query_embeddings=[query_embedding],
-    n_results=1
-)
-data = results['documents'][0][0]
 
-# Debug: Print the retrieved document
-print(f"Most relevant document for the query '{prompt}':")
-print(data)
-'''
+
 # Define metadata for the retriever
 metadata_field_info = [
     AttributeInfo(
@@ -86,7 +78,7 @@ metadata_field_info = [
         type="string or list[string]",
     ),
     AttributeInfo(
-        name="year",
+        name="year_as_integer",
         description="The year the movie was released",
         type="integer",
     ),
@@ -96,25 +88,33 @@ metadata_field_info = [
         type="string",
     ),
     AttributeInfo(
-        name="rating", description="A 1-10 rating for the movie", type="float"
+        name="rating_as_float", description="A 1-10 rating for the movie", type="float"
     ),
 ]
 document_content_description = "Brief summary of a movie"
 llm = Ollama(model="llama3")
 
-# Initialize the vector store with documents
-vectorstore = Chroma.from_documents(documents, embeddings=ollama.embeddings)
-
+# Initialize the vector store with documents and embeddings
+vectorstore = Chroma.from_documents(
+    documents=documents,
+    collection_name="dcd_store",
+    embedding=embedding_model,
+    persist_directory="../chroma_store2"
+)
+# Debug: Print the documents added to the collection
+print("Documents added to the collection:")
+for doc in collection.get():
+    print(doc)
 # Create SelfQueryRetriever
 retriever = SelfQueryRetriever.from_llm(
     llm, vectorstore, document_content_description, metadata_field_info, verbose=True
 )
 
 # Perform the query
-query = "What are some movies about dinosaurs?"
-retrieved_docs = retriever.retrieve(query)
+query = "What movies are about dinosaurs?"
+retrieved_docs = retriever.get_relevant_documents(query)
 
 # Debug: Print retrieved documents
 print("Retrieved documents for the query 'What are some movies about dinosaurs?':")
 for doc in retrieved_docs:
-    print(doc)
+    print(doc.page_content, doc.metadata)
