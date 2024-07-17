@@ -1,4 +1,5 @@
 # main.py
+import datetime
 
 from database.db_create import create_tables
 from database.db_select import get_all_papers
@@ -16,17 +17,21 @@ def main():
 
     # Получение и вставка данных из arXiv по ключевому слову
     keyword = "machine learning"  # Измените на нужное ключевое слово
-    fetch_and_store_papers(keyword, max_results=50)
-
+    print("begin fetching", datetime.datetime.now())
+    fetch_and_store_papers(keyword, max_results=70)
+    print("end fetching", datetime.datetime.now())
     # Создание векторного индекса
+    print("begin create_chroma_index", datetime.datetime.now())
     client, collection, papers = create_chroma_index()
+    print("end create_chroma_index", datetime.datetime.now())
     print(collection.count())
     # Выполнение поиска по векторному индексу
     # query = "find articles, where application of machine learning in medical diagnostics is mentioned"  # Пример поискового запроса
     query = "Найди статьи за 2023 год по теме машинного обучения"
-    top_k = 5
+    top_k = 10
+    print("begin search_chroma_index", datetime.datetime.now())
     results, distances = search_chroma_index(query, top_k)
-
+    print("end search_chroma_index", datetime.datetime.now())
 
     filtered_results = self_query_search(query, collection)
 

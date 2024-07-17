@@ -29,11 +29,14 @@ def create_chroma_index():
 
     # Преобразование аннотаций в векторы
     texts = [paper[4] for paper in papers]  # Аннотации статей
-    vectors = ollama.embeddings(model="nomic-embed-text", prompt=texts)
+    # print("Abstracts:")
+    # print(texts)
+    # print(len(texts))
+    # vectors = ollama.embeddings(model="nomic-embed-text", prompt=texts)
 
     # Создание списков для ID, векторов и метаданных
     ids = [str(uuid.uuid4()) for _ in papers]
-    embeddings = vectors.tolist()
+    # embeddings = vectors.tolist()
     metadatas = [{
         'name': paper[1],
         'authors': paper[2],
@@ -46,31 +49,41 @@ def create_chroma_index():
     } for paper in papers]
 
     # Добавление данных в коллекцию
-    collection.add(ids=ids, embeddings=embeddings, metadatas=metadatas)
+    collection.add(ids=ids, documents=texts, metadatas=metadatas)
 
     print("Vector index has been created and stored in ChromaDB.")
+    print(collection.count())
+    return client, collection, papers # можно убрать??
 
-    return client, collection, papers
+
+# create_chroma_index()
 
 
 def search_chroma_index(query, top_k=5):
     # Инициализация ChromaDB клиента
-    client = chromadb.Client()
-    collection = client.get_collection('papers_collection')
-
+    '''client = chromadb.Client()
+    collection = client.get_collection('papers_collection')'''
+    client, collection, papers = create_chroma_index()
     # Загрузка предобученной модели для преобразования текстов в векторы
-    model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+    # model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 
     # Преобразование запроса в вектор
-    query_vector = model.encode([query])
+    # query_vector = model.encode([query])
 
     # Поиск ближайших соседей
-    response = collection.query(query_embeddings=query_vector, n_results=top_k)
+    response = collection.query(query_texts=query, n_results=top_k)
 
     # Возвращение результатов поиска
     if 'metadatas' in response and 'distances' in response:
         metadatas = response['metadatas'][0]
         distances = response['distances'][0]
+        '''print("RESPONSE")
+        print(response)
+        print("METADATAS")
+        print(metadatas)'''
         return metadatas, distances
     else:
         return [], []
+    # return response
+
+# search_chroma_index("find articles, where application of machine learning in medical diagnostics is mentioned")
