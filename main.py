@@ -9,7 +9,7 @@ from database.db_vectorize import create_chroma_index, search_chroma_index
 from retriever.query_retriever import self_query_search
 
 def main():
-    # Создание таблиц
+    ''' # Создание таблиц
     create_tables()
 
     # Очистка таблицы перед вставкой новых данных
@@ -19,18 +19,25 @@ def main():
     keyword = "machine learning"  # Измените на нужное ключевое слово
     print("begin fetching", datetime.datetime.now())
     fetch_and_store_papers(keyword, max_results=70)
-    print("end fetching", datetime.datetime.now())
+    print("end fetching", datetime.datetime.now())'''
     # Создание векторного индекса
     print("begin create_chroma_index", datetime.datetime.now())
     client, collection, papers = create_chroma_index()
     print("end create_chroma_index", datetime.datetime.now())
     print(collection.count())
     # Выполнение поиска по векторному индексу
-    # query = "find articles, where application of machine learning in medical diagnostics is mentioned"  # Пример поискового запроса
-    query = "Найди статьи за 2023 год по теме машинного обучения"
+    query = "find articles, where application of machine learning in medical diagnostics is mentioned"  # Пример поискового запроса
+    # query = "Найди статьи за 2023 год по теме машинного обучения"
     top_k = 10
     print("begin search_chroma_index", datetime.datetime.now())
-    results, distances = search_chroma_index(query, top_k)
+    # results, distances = search_chroma_index(query, top_k)
+
+    response = collection.query(query_texts=query, n_results=top_k)
+    print(response)
+
+    if 'metadatas' in response and 'distances' in response:
+        results = response['metadatas'][0]
+        distances = response['distances'][0]
     print("end search_chroma_index", datetime.datetime.now())
 
     filtered_results = self_query_search(query, collection)

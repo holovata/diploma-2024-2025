@@ -51,18 +51,18 @@ def create_chroma_index():
     # Добавление данных в коллекцию
     collection.add(ids=ids, documents=texts, metadatas=metadatas)
 
-    print("Vector index has been created and stored in ChromaDB.")
-    print(collection.count())
-    return client, collection, papers # можно убрать??
+    # print("Vector index has been created and stored in ChromaDB.")
+    # print(collection.count())
+    return client, collection, papers
 
 
 # create_chroma_index()
 
 
-def search_chroma_index(query, top_k=5):
+'''def search_chroma_index(query, top_k=5):
     # Инициализация ChromaDB клиента
-    '''client = chromadb.Client()
-    collection = client.get_collection('papers_collection')'''
+    # client = chromadb.Client()
+    # collection = client.get_collection('papers_collection')
     client, collection, papers = create_chroma_index()
     # Загрузка предобученной модели для преобразования текстов в векторы
     # model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
@@ -77,13 +77,13 @@ def search_chroma_index(query, top_k=5):
     if 'metadatas' in response and 'distances' in response:
         metadatas = response['metadatas'][0]
         distances = response['distances'][0]
-        '''print("RESPONSE")
-        print(response)
-        print("METADATAS")
-        print(metadatas)'''
+        # print("RESPONSE")
+        # print(response)
+        # print("METADATAS")
+        # print(metadatas)
         return metadatas, distances
     else:
         return [], []
-    # return response
+    # return response'''
 
 # search_chroma_index("find articles, where application of machine learning in medical diagnostics is mentioned")
