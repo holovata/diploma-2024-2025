@@ -1,7 +1,7 @@
 # database/db_select.
 
 import psycopg2
-from .db_config import get_db_connection
+from database.db_config import get_db_connection
 
 
 def get_all_papers():
@@ -15,3 +15,6 @@ def get_all_papers():
     except (Exception, psycopg2.DatabaseError) as error:
         print("Error while fetching data:", error)
         return []
+
+
+# print(get_all_papers())

@@ -4,6 +4,8 @@ from langchain_community.llms import Ollama
 from langchain.llms import BaseLLM
 from langchain.retrievers.self_query.base import SelfQueryRetriever
 from langchain.chains.query_constructor.base import AttributeInfo
+from database.db_vectorize import create_chroma_index
+
 
 def self_query_search(query, collection):
     metadata_field_info = [
@@ -49,7 +51,8 @@ def self_query_search(query, collection):
         ),
     ]
 
-    llm = Ollama(model="llama3")
+
+    llm = Ollama(model="phi3:medium")
     retriever = SelfQueryRetriever.from_llm(
         llm=llm,
         vectorstore=collection,
@@ -61,4 +64,5 @@ def self_query_search(query, collection):
     # Выполнение запроса
     results = retriever.retrieve(query)
     return results
+
 

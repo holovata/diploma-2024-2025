@@ -1,11 +1,12 @@
 # database/db_vectorize.py
-
+import ollama
 from langchain_community.vectorstores import Chroma
 from langchain_core.documents import Document
+from langchain_community.llms import Ollama
 import chromadb
 import uuid
 from sentence_transformers import SentenceTransformer
-from .db_select import get_all_papers
+from database.db_select import get_all_papers
 
 
 def create_chroma_index():
@@ -21,14 +22,14 @@ def create_chroma_index():
 
     collection = client.get_or_create_collection(collection_name)
     # Загрузка предобученной модели для преобразования текстов в векторы
-    model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+    # model = Ollama(model="nomic-embed-text")
 
     # Извлечение данных из базы данных
     papers = get_all_papers()
 
     # Преобразование аннотаций в векторы
     texts = [paper[4] for paper in papers]  # Аннотации статей
-    vectors = model.encode(texts)
+    vectors = ollama.embeddings(model="nomic-embed-text", prompt=texts)
 
     # Создание списков для ID, векторов и метаданных
     ids = [str(uuid.uuid4()) for _ in papers]
