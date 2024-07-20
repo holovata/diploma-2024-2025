@@ -5,7 +5,7 @@ from database.db_create import create_tables
 from database.db_select import get_all_papers
 from database.db_clear import clear_table
 from database.db_fetch_and_store import fetch_and_store_papers
-from database.db_vectorize import create_chroma_index, search_chroma_index
+from database.db_vectorize import create_chroma_index
 from retriever.query_retriever import self_query_search
 
 def main():
@@ -26,10 +26,10 @@ def main():
     print("end create_chroma_index", datetime.datetime.now())
     print(collection.count())
     # Выполнение поиска по векторному индексу
-    query = "find articles, where application of machine learning in medical diagnostics is mentioned"  # Пример поискового запроса
-    # query = "Найди статьи за 2023 год по теме машинного обучения"
+    # query = "find articles, where application of machine learning in medical diagnostics is mentioned"  # Пример поискового запроса
+    query = "Найди статьи за 2023 год по теме машинного обучения"
     top_k = 10
-    print("begin search_chroma_index", datetime.datetime.now())
+    '''print("begin search_chroma_index", datetime.datetime.now())
     # results, distances = search_chroma_index(query, top_k)
 
     response = collection.query(query_texts=query, n_results=top_k)
@@ -38,14 +38,14 @@ def main():
     if 'metadatas' in response and 'distances' in response:
         results = response['metadatas'][0]
         distances = response['distances'][0]
-    print("end search_chroma_index", datetime.datetime.now())
+    print("end search_chroma_index", datetime.datetime.now())'''
 
-    filtered_results = self_query_search(query, collection)
+    filtered_results, distances = self_query_search(query, collection)
 
     print("Результаты фильтрации:")
     # Печать результатов поиска
     print(f"Top {top_k} results for query '{query}':")
-    for i, (result, dist) in enumerate(zip(results, distances)):
+    for i, (result, dist) in enumerate(zip(filtered_results, distances)):
         print(f"{i + 1}. {result['name']} (Distance: {dist:.4f})")
         print(f"Authors: {result['authors']}")
         print(f"URL: {result['url']}")
