@@ -9,7 +9,7 @@ from langchain_community.embeddings.sentence_transformer import (SentenceTransfo
 from database.db_select import get_all_papers
 
 
-def create_chroma_index():
+def create_chroma_index_OLD():
     # Инициализация ChromaDB клиента
     # client = chromadb.Client()
     collection_name = 'papers_collection'
@@ -52,17 +52,70 @@ def create_chroma_index():
     # collection.add(ids=ids, documents=texts, metadatas=metadatas)
     print("Initializing vector store...")
     vectorstore = Chroma.from_texts(texts=texts, embedding=embedding_function,
-                                    collection_name=collection_name,metadatas=metadatas,
+                                    collection_name=collection_name, metadatas=metadatas,
                                     ids=ids)
     print("Vector store initialized.")
     # print("Vector index has been created and stored in ChromaDB.")
     # print(collection.count())
     print(len(vectorstore.get()['documents']))
+    print(vectorstore.get())
     # return client, collection, texts
     return vectorstore
 
 
-# create_chroma_index()
+def create_chroma_index():
+    # Инициализация ChromaDB клиента
+    # client = chromadb.Client()
+    collection_name = 'papers_collection'
+    embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+
+    # Извлечение данных из базы данных
+    print("Fetching papers from database...")
+    papers = get_all_papers()
+    print(f"Number of papers fetched: {len(papers)}")
+
+    if len(papers) > 0:
+        print("Sample paper:", papers[0])
+
+    # Преобразование аннотаций в векторы
+    texts = [paper[4] for paper in papers]  # Аннотации статей
+    print("Sample text:", texts[0] if texts else "No texts available")
+
+    # Создание списков для ID, векторов и метаданных
+    ids = [str(uuid.uuid4()) for _ in papers]
+    print("Sample ID:", ids[0] if ids else "No IDs available")
+
+    metadatas = [{
+        'name': paper[1],
+        'authors': paper[2],
+        'url': paper[3],
+        'abstract': paper[4],  # Сохранение аннотации в метаданных
+        'keyword': paper[5],
+        'categories': paper[6],
+        'year': paper[7],
+        'eprint': paper[8]
+    } for paper in papers]
+    print("Sample metadata:", metadatas[0] if metadatas else "No metadata available")
+
+    # Добавление данных в коллекцию
+    print("Initializing vector store...")
+    vectorstore = Chroma.from_texts(texts=texts, embedding=embedding_function,
+                                    collection_name=collection_name, metadatas=metadatas,
+                                    ids=ids)
+    print("Vector store initialized.")
+
+    # Print the number of documents and their details
+    documents = vectorstore.get()['documents']
+    print(f"Number of documents in vector store: {len(documents)}")
+    if len(documents) > 0:
+        print("Sample document:", documents[0])
+
+    return vectorstore
+
+
+create_chroma_index()
+
+create_chroma_index()
 
 
 '''def search_chroma_index(query, top_k=5):

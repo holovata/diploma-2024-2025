@@ -1,10 +1,10 @@
-#query_retriever.py
+# query_retriever.py
 
 from langchain_community.llms import Ollama
-from langchain.llms import BaseLLM
 from langchain.retrievers.self_query.base import SelfQueryRetriever
 from langchain.chains.query_constructor.base import AttributeInfo
 from database.db_vectorize import create_chroma_index
+import json
 
 
 def self_query_search(query, collection):
@@ -51,7 +51,6 @@ def self_query_search(query, collection):
         ),
     ]
 
-
     llm = Ollama(model="phi3:medium")
     retriever = SelfQueryRetriever.from_llm(
         llm=llm,
@@ -61,9 +60,22 @@ def self_query_search(query, collection):
         verbose=True
     )
 
-    # Выполнение запроса
-    results = retriever.invoke(query)
-    distances = results['distances'][0]
+    # Execute the query
+    try:
+        results = retriever.invoke(query)
+        print("Results:", json.dumps(results, indent=2))  # Debugging: print the raw results
+    except Exception as e:
+        print(f"Error during query execution: {e}")
+        return None, None
+
+    if 'distances' in results:
+        distances = results['distances'][0]
+    else:
+        distances = None
+
     return results, distances
 
-
+# Example usage:
+vectorstore = create_chroma_index()
+query = "машинное обучение"
+filtered_results, distances = self_query_search(query, vectorstore)
