@@ -23,7 +23,8 @@ def main():
     # Создание векторного индекса
     print("begin create_chroma_index", datetime.datetime.now())
     # client, collection, papers = create_chroma_index()
-    create_chroma_index()
+    vectorstore = create_chroma_index()
+    print(len(vectorstore.get()['documents']))
     print("end create_chroma_index", datetime.datetime.now())
     # print(collection.count())
 

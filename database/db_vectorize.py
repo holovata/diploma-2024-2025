@@ -59,6 +59,7 @@ def create_chroma_index():
     # print(collection.count())
     print(len(vectorstore.get()['documents']))
     # return client, collection, texts
+    return vectorstore
 
 
 # create_chroma_index()
