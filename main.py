@@ -43,7 +43,7 @@ def main():
         distances = response['distances'][0]
     print("end search_chroma_index", datetime.datetime.now())'''
 
-    filtered_results, distances = self_query_search(query, collection)
+    filtered_results, distances = self_query_search(query, vectorstore)
 
     print("Результаты фильтрации:")
     # Печать результатов поиска

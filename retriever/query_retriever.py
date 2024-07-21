@@ -62,7 +62,7 @@ def self_query_search(query, collection):
     )
 
     # Выполнение запроса
-    results = retriever.retrieve(query)
+    results = retriever.invoke(query)
     distances = results['distances'][0]
     return results, distances
 
