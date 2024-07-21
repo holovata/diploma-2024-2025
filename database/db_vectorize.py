@@ -5,22 +5,22 @@ from langchain_core.documents import Document
 from langchain_community.llms import Ollama
 import chromadb
 import uuid
-from sentence_transformers import SentenceTransformer
+from langchain_community.embeddings.sentence_transformer import (SentenceTransformerEmbeddings)
 from database.db_select import get_all_papers
 
 
 def create_chroma_index():
     # Инициализация ChromaDB клиента
-    client = chromadb.Client()
+    # client = chromadb.Client()
     collection_name = 'papers_collection'
-
+    embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
     '''# Проверка существования коллекции
     if collection_name in client.list_collections():
         collection = client.get_collection(collection_name)
     else:
         collection = client.create_collection(collection_name)'''
 
-    collection = client.get_or_create_collection(collection_name)
+    # collection = client.get_or_create_collection(collection_name)
     # Загрузка предобученной модели для преобразования текстов в векторы
     # model = Ollama(model="nomic-embed-text")
 
@@ -49,11 +49,16 @@ def create_chroma_index():
     } for paper in papers]
 
     # Добавление данных в коллекцию
-    collection.add(ids=ids, documents=texts, metadatas=metadatas)
-
+    # collection.add(ids=ids, documents=texts, metadatas=metadatas)
+    print("Initializing vector store...")
+    vectorstore = Chroma.from_texts(texts=texts, embedding=embedding_function,
+                                    collection_name=collection_name,metadatas=metadatas,
+                                    ids=ids)
+    print("Vector store initialized.")
     # print("Vector index has been created and stored in ChromaDB.")
     # print(collection.count())
-    return client, collection, papers
+    print(len(vectorstore.get()['documents']))
+    # return client, collection, texts
 
 
 # create_chroma_index()

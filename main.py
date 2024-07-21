@@ -22,9 +22,11 @@ def main():
     print("end fetching", datetime.datetime.now())'''
     # Создание векторного индекса
     print("begin create_chroma_index", datetime.datetime.now())
-    client, collection, papers = create_chroma_index()
+    # client, collection, papers = create_chroma_index()
+    create_chroma_index()
     print("end create_chroma_index", datetime.datetime.now())
-    print(collection.count())
+    # print(collection.count())
+
     # Выполнение поиска по векторному индексу
     # query = "find articles, where application of machine learning in medical diagnostics is mentioned"  # Пример поискового запроса
     query = "Найди статьи за 2023 год по теме машинного обучения"
