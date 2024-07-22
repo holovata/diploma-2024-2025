@@ -64,7 +64,8 @@ def self_query_search(query, collection):
     try:
         results = retriever.invoke(query)
         print("Raw results from retriever:")
-        print(json.dumps(results, indent=2))
+        results_dict = [{"page_content": doc.page_content, "metadata": doc.metadata, "id": doc.id} for doc in results]
+        print(json.dumps(results_dict, indent=2))
     except Exception as e:
         print(f"Error during query execution: {e}")
         return [], []
