@@ -28,7 +28,7 @@ def main():
     print("end create_chroma_index", datetime.datetime.now())
 
     # Выполнение поиска по векторному индексу
-    query = "Найди статьи за 2023 год по теме машинного обучения"
+    query = "Найди статьи автора Nicolas Flammarion"
     top_k = 10
     print("begin self_query_search", datetime.datetime.now())
     filtered_results, distances = self_query_search(query, vectorstore)
