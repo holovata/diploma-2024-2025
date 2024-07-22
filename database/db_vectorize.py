@@ -64,12 +64,9 @@ def create_chroma_index_OLD():
 
 
 def create_chroma_index():
-    # Инициализация ChromaDB клиента
-    # client = chromadb.Client()
     collection_name = 'papers_collection'
     embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
 
-    # Извлечение данных из базы данных
     print("Fetching papers from database...")
     papers = get_all_papers()
     print(f"Number of papers fetched: {len(papers)}")
@@ -77,34 +74,33 @@ def create_chroma_index():
     if len(papers) > 0:
         print("Sample paper:", papers[0])
 
-    # Преобразование аннотаций в векторы
-    texts = [paper[4] for paper in papers]  # Аннотации статей
-    print("Sample text:", texts[0] if texts else "No texts available")
+    texts = [paper[4] for paper in papers]
+    print(f"Sample text: {texts[0] if texts else 'No texts available'}")
+    print(f"Total texts: {len(texts)}")
 
-    # Создание списков для ID, векторов и метаданных
     ids = [str(uuid.uuid4()) for _ in papers]
-    print("Sample ID:", ids[0] if ids else "No IDs available")
+    print(f"Sample ID: {ids[0] if ids else 'No IDs available'}")
+    print(f"Total IDs: {len(ids)}")
 
     metadatas = [{
         'name': paper[1],
         'authors': paper[2],
         'url': paper[3],
-        'abstract': paper[4],  # Сохранение аннотации в метаданных
+        'abstract': paper[4],
         'keyword': paper[5],
         'categories': paper[6],
         'year': paper[7],
         'eprint': paper[8]
     } for paper in papers]
-    print("Sample metadata:", metadatas[0] if metadatas else "No metadata available")
+    print(f"Sample metadata: {metadatas[0] if metadatas else 'No metadata available'}")
+    print(f"Total metadata items: {len(metadatas)}")
 
-    # Добавление данных в коллекцию
     print("Initializing vector store...")
     vectorstore = Chroma.from_texts(texts=texts, embedding=embedding_function,
                                     collection_name=collection_name, metadatas=metadatas,
                                     ids=ids)
     print("Vector store initialized.")
 
-    # Print the number of documents and their details
     documents = vectorstore.get()['documents']
     print(f"Number of documents in vector store: {len(documents)}")
     if len(documents) > 0:
@@ -113,10 +109,20 @@ def create_chroma_index():
     return vectorstore
 
 
-create_chroma_index()
+# Additional example usage
+def search_chroma_index(query, vectorstore, top_k):
+    # vectorstore = create_chroma_index()
+    response = vectorstore.similarity_search(query=query, k=top_k)
+    metadatas = [doc.metadata for doc in response]
+    # distances = [doc.distance for doc in response]
+    return metadatas
 
-create_chroma_index()
 
+'''# Example usage:
+vectorstore = create_chroma_index()
+query = "машинное обучение"
+filtered_results = search_chroma_index(query, vectorstore, 5)
+print(filtered_results)'''
 
 '''def search_chroma_index(query, top_k=5):
     # Инициализация ChromaDB клиента
