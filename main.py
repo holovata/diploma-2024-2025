@@ -7,8 +7,8 @@ from database.db_fetch_and_store import fetch_and_store_papers
 from database.db_vectorize import create_chroma_index
 from retriever.query_retriever import self_query_search
 
-from langchain import PromptTemplate
-from langchain.llms import Ollama
+# from langchain import PromptTemplate
+from langchain_community.llms import Ollama
 from langchain.callbacks.manager import CallbackManager
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.chains import RetrievalQA
@@ -24,10 +24,15 @@ def main():
 
     # Очистка таблицы перед вставкой новых данных
     clear_table("keyword_papers_list")
-
+    print("begin fetching", datetime.datetime.now())
     # Получение и вставка данных из arXiv по ключевому слову
     keyword = "machine learning"  # Измените на нужное ключевое слово
-    print("begin fetching", datetime.datetime.now())
+    fetch_and_store_papers(keyword, max_results=200)
+
+    keyword = "machine learning"  # Измените на нужное ключевое слово
+    fetch_and_store_papers(keyword, max_results=200)
+
+    keyword = "machine learning"  # Измените на нужное ключевое слово
     fetch_and_store_papers(keyword, max_results=200)
     print("end fetching", datetime.datetime.now())
 
@@ -55,7 +60,7 @@ def main():
     vectorstore = create_chroma_index()
     print(f"Vector store document count: {len(vectorstore.get()['documents'])}")
     print("end create_chroma_index", datetime.datetime.now())
-    retriever = vectorstore.as_retriever()
+    retriever = vectorstore.as_retriever(search_kwargs={"k": 10})
 
     while True:
         query = input("\nQuery: ")
@@ -66,6 +71,54 @@ def main():
 
         retrieved_docs = retriever.invoke(query)
         print(retrieved_docs)
+
+        llm = Ollama(model="llama3")
+
+        from langchain.chains import RetrievalQA
+        from langchain.chains.llm import LLMChain
+        from langchain.chains.combine_documents.stuff import StuffDocumentsChain
+        from langchain.prompts import PromptTemplate
+
+        prompt = """
+        1. Use the following pieces of context to answer the question at the end.
+        2. If you don't know the answer, just say that "I don't know" but don't make up an answer on your own.\n
+        3. Keep the answer crisp and limited to 6,7 sentences.
+        4. When mentioning articles, try to provide more information about the articles. Author(s) and the link are a bare minimum.
+
+        Context: {context}
+
+        Question: {question}
+
+        Helpful Answer:"""
+
+        QA_CHAIN_PROMPT = PromptTemplate.from_template(prompt)
+
+        llm_chain = LLMChain(
+            llm=llm,
+            prompt=QA_CHAIN_PROMPT,
+            callbacks=None,
+            verbose=True)
+
+        document_prompt = PromptTemplate(
+            input_variables=["page_content", "source"],
+            template="Context:\ncontent:{page_content}\nsource:{source}",
+        )
+
+        combine_documents_chain = StuffDocumentsChain(
+            llm_chain=llm_chain,
+            document_variable_name="context",
+            document_prompt=document_prompt,
+            callbacks=None,
+        )
+
+        qa = RetrievalQA(
+            combine_documents_chain=combine_documents_chain,
+            verbose=True,
+            retriever=retriever,
+            return_source_documents=True,
+        )
+
+        print(qa(query)["result"])
 
 '''       # Prompt
         template = """Use the following pieces of context to answer the question at the end.

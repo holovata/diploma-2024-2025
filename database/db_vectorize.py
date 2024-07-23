@@ -84,6 +84,7 @@ def create_chroma_index():
 
     metadatas = [{
         'name': paper[1],
+        'source': paper[1],
         'authors': paper[2],
         'url': paper[3],
         'abstract': paper[4],
