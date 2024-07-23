@@ -64,7 +64,10 @@ def main():
         if query.strip() == "":
             continue
 
-        # Prompt
+        retrieved_docs = retriever.invoke(query)
+        print(retrieved_docs)
+
+'''       # Prompt
         template = """Use the following pieces of context to answer the question at the end.
         If you don't know the answer, just say that you don't know, don't try to make up an answer.
         Keep the answer as concise as possible.
@@ -83,12 +86,12 @@ def main():
                 | prompt
                 | model_local
                 | StrOutputParser()
-        )
+        )'''
 
-        res = chain.invoke(query)
-        print(res)
-    # Выполнение поиска по векторному индексу
-    '''query = "find articles about Schatten-p Low Rank Approximation"
+
+'''
+# Выполнение поиска по векторному индексу
+query = "find articles about Schatten-p Low Rank Approximation"
     top_k = 5
     print("begin self_query_search", datetime.datetime.now())
     # results, distances = self_query_search(query, vectorstore)
