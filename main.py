@@ -19,7 +19,7 @@ from langchain_core.runnables import RunnableLambda, RunnablePassthrough
 
 
 def main():
-    # Создание таблиц
+    '''# Создание таблиц
     create_tables()
 
     # Очистка таблицы перед вставкой новых данных
@@ -29,12 +29,12 @@ def main():
     keyword = "machine learning"  # Измените на нужное ключевое слово
     fetch_and_store_papers(keyword, max_results=200)
 
-    keyword = "machine learning"  # Измените на нужное ключевое слово
+    keyword = "computation and language"  # Измените на нужное ключевое слово
     fetch_and_store_papers(keyword, max_results=200)
 
-    keyword = "machine learning"  # Измените на нужное ключевое слово
-    fetch_and_store_papers(keyword, max_results=200)
-    print("end fetching", datetime.datetime.now())
+    keyword = "artificial intelligence"  # Измените на нужное ключевое слово
+    fetch_and_store_papers(keyword, max_results=1000)
+    print("end fetching", datetime.datetime.now())'''
 
     '''    if results is None or distances is None:
             print("Error during query execution.")
@@ -80,10 +80,13 @@ def main():
         from langchain.prompts import PromptTemplate
 
         prompt = """
+        You are an AI helper-assistant that guides scientists through a database with arxiv.org articles.
         1. Use the following pieces of context to answer the question at the end.
         2. If you don't know the answer, just say that "I don't know" but don't make up an answer on your own.\n
-        3. Keep the answer crisp and limited to 6,7 sentences.
+        3. Keep the answer crisp and limited to 2,3 sentences for each article.
         4. When mentioning articles, try to provide more information about the articles. Author(s) and the link are a bare minimum.
+        5. If you are asked to provide a certain number of articles, create a list of that exact number of articles.
+        
 
         Context: {context}
 

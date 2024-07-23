@@ -7,7 +7,7 @@ import chromadb
 import uuid
 from langchain_community.embeddings.sentence_transformer import (SentenceTransformerEmbeddings)
 from database.db_select import get_all_papers
-
+from langchain_community.embeddings import HuggingFaceEmbeddings
 
 def create_chroma_index_OLD():
     # Инициализация ChromaDB клиента
@@ -65,7 +65,10 @@ def create_chroma_index_OLD():
 
 def create_chroma_index():
     collection_name = 'papers_collection'
-    embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+    # embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+    embedding_function = HuggingFaceEmbeddings(
+        # model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
+        model_name="bert-base-multilingual-cased")
 
     print("Fetching papers from database...")
     papers = get_all_papers()
@@ -119,10 +122,10 @@ def search_chroma_index(query, vectorstore, top_k):
     return metadatas
 
 
-'''# Example usage:
-vectorstore = create_chroma_index()
-query = "машинное обучение"
-filtered_results = search_chroma_index(query, vectorstore, 5)
+# Example usage:
+'''vectorstore = create_chroma_index()
+query = "finance"
+filtered_results = search_chroma_index(query, vectorstore, 10)
 print(filtered_results)'''
 
 '''def search_chroma_index(query, top_k=5):

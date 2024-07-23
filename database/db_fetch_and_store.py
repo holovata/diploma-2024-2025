@@ -11,13 +11,20 @@ def fetch_and_store_papers(keyword, max_results=5):
         sort_by=arxiv.SortCriterion.SubmittedDate
     )
 
-    for result in client.results(search):
-        name = result.title
-        authors = ', '.join([author.name for author in result.authors])
-        url = result.entry_id
-        abstract = result.summary
-        categories = ', '.join(result.categories)
-        year = result.updated.year
-        eprint = result.entry_id
+    try:
+        results = list(client.results(search))
+        actual_results = min(max_results, len(results))
 
-        insert_paper(name, authors, url, abstract, keyword, categories, year, eprint)
+        for result in results[:actual_results]:
+            name = result.title
+            authors = ', '.join([author.name for author in result.authors])
+            url = result.entry_id
+            abstract = result.summary
+            categories = ', '.join(result.categories)
+            year = result.updated.year
+            eprint = result.entry_id
+
+            insert_paper(name, authors, url, abstract, keyword, categories, year, eprint)
+
+    except Exception as e:
+        print(f"Error during fetching and storing papers: {e}")
