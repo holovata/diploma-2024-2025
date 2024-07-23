@@ -36,8 +36,8 @@ def check_articles_exist():
         cursor.execute("""
             SELECT EXISTS (
                 SELECT 1
-                FROM articles
-                WHERE title = %s AND year = %s
+                FROM keyword_papers_list
+                WHERE name = %s AND year = %s
             )
         """, (title, year))
 
@@ -52,4 +52,4 @@ def check_articles_exist():
 
 
 # Call the function to check articles
-check_articles_exist()
+# check_articles_exist()
