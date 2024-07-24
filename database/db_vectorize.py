@@ -105,7 +105,7 @@ def create_chroma_index():
     chroma_store_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'chroma_store'))
     vectorstore = Chroma.from_texts(texts=texts, embedding=embedding_function,
                                     collection_name=collection_name, metadatas=metadatas,
-                                    ids=ids, persist_directory="")
+                                    ids=ids, persist_directory=chroma_store_path)
     print("Vector store initialized.")
 
     documents = vectorstore.get()['documents']
