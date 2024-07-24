@@ -4,21 +4,22 @@ from langchain_community.vectorstores import Chroma
 from langchain_core.documents import Document
 from langchain_community.llms import Ollama
 import chromadb
+import os
 import uuid
 from langchain_community.embeddings.sentence_transformer import (SentenceTransformerEmbeddings)
 from database.db_select import get_all_papers
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
-def create_chroma_index_OLD():
+'''def create_chroma_index_OLD():
     # Инициализация ChromaDB клиента
     # client = chromadb.Client()
     collection_name = 'papers_collection'
     embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
-    '''# Проверка существования коллекции
+    # Проверка существования коллекции
     if collection_name in client.list_collections():
         collection = client.get_collection(collection_name)
     else:
-        collection = client.create_collection(collection_name)'''
+        collection = client.create_collection(collection_name)
 
     # collection = client.get_or_create_collection(collection_name)
     # Загрузка предобученной модели для преобразования текстов в векторы
@@ -60,7 +61,7 @@ def create_chroma_index_OLD():
     print(len(vectorstore.get()['documents']))
     print(vectorstore.get())
     # return client, collection, texts
-    return vectorstore
+    return vectorstore'''
 
 
 def create_chroma_index():
@@ -100,9 +101,11 @@ def create_chroma_index():
     print(f"Total metadata items: {len(metadatas)}")
 
     print("Initializing vector store...")
+    # Определяем путь к директории chroma_store относительно текущего файла
+    chroma_store_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'chroma_store'))
     vectorstore = Chroma.from_texts(texts=texts, embedding=embedding_function,
                                     collection_name=collection_name, metadatas=metadatas,
-                                    ids=ids)
+                                    ids=ids, persist_directory="")
     print("Vector store initialized.")
 
     documents = vectorstore.get()['documents']
