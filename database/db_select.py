@@ -21,35 +21,34 @@ def get_all_papers():
 
 def check_articles_exist():
     articles = [
-        ("Quantifying Systemic Risk through Network Analysis", 2022),
-        ("Machine Learning in Finance: A Survey", 2020),
-        ("Deep Learning for Credit Risk Assessment", 2019),
-        ("A Study on Machine Learning-Based Predictive Models for Stock Market Forecasting", 2020),
-        ("Neural Networks in Finance: An Overview and Some Applications", 2018),
-        ("Unsupervised Learning for Anomaly Detection in Financial Time Series", 2022)
+        "Deep Learning for Economists",
+        "A Comparative Study on Automatic Coding of Medical Letters with Explainability",
+        "Towards More Trustworthy and Interpretable LLMs for Code through Syntax-Grounded Explanations",
+        "Privacy-Preserving Multi-Center Differential Protein Abundance Analysis with FedProt",
+        "A Hybrid Approach to Predicting Stock Prices using Machine Learning and Financial Metrics",
+        "Using Gradient Boosting Machines for Credit Risk Modeling"
     ]
 
-    connection = get_db_connection()
-    cursor = connection.cursor()
+    try:
+        with get_db_connection() as connection:
+            with connection.cursor() as cursor:
+                for title in articles:
+                    cursor.execute("""
+                        SELECT EXISTS (
+                            SELECT 1
+                            FROM keyword_papers_list
+                            WHERE name = %s
+                        )
+                    """, (title,))
 
-    for title, year in articles:
-        cursor.execute("""
-            SELECT EXISTS (
-                SELECT 1
-                FROM keyword_papers_list
-                WHERE name = %s AND year = %s
-            )
-        """, (title, year))
-
-        exists = cursor.fetchone()[0]
-        if exists:
-            print(f"Article '{title}' ({year}) exists in the database.")
-        else:
-            print(f"Article '{title}' ({year}) does not exist in the database.")
-
-    cursor.close()
-    connection.close()
+                    exists = cursor.fetchone()[0]
+                    if exists:
+                        print(f"Article '{title}' exists in the database.")
+                    else:
+                        print(f"Article '{title}' does not exist in the database.")
+    except (Exception, psycopg2.DatabaseError) as error:
+        print("Error while checking articles:", error)
 
 
 # Call the function to check articles
-# check_articles_exist()
+check_articles_exist()
