@@ -7,7 +7,7 @@ from telegram import ForceReply, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 
 # Импорт функции из основного файла
-from your_rag_system import process_query  # Убедитесь, что путь правильный
+from answer_generation.rag import create_vectorstore, process_query
 
 # Enable logging
 logging.basicConfig(
@@ -15,6 +15,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Initialize the retriever outside of any handlers to ensure it's created only once
+retriever = create_vectorstore()
 
 # Define a few command handlers. These usually take the two arguments update and context.
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -36,7 +38,7 @@ async def handle_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     query = update.message.text
 
     # Обработка запроса с использованием основной логики
-    response = process_query(query)
+    response = process_query(retriever, query)
 
     # Отправка ответа обратно пользователю
     await update.message.reply_text(response)
@@ -45,7 +47,7 @@ async def handle_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 def main() -> None:
     """Start the bot."""
     # Create the Application and pass it your bot's token.
-    application = Application.builder().token("YOUR_TELEGRAM_BOT_TOKEN").build()
+    application = Application.builder().token("6909103286:AAFus5QDZ5XxF96jcKTvKSU5GEMECLHhMbE").read_timeout(60).write_timeout(60).build()
 
     # on different commands - answer in Telegram
     application.add_handler(CommandHandler("start", start))

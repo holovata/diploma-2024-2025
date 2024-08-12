@@ -106,6 +106,7 @@ def create_chroma_index():
     vectorstore = Chroma.from_texts(texts=texts, embedding=embedding_function,
                                     collection_name=collection_name, metadatas=metadatas,
                                     ids=ids, persist_directory=chroma_store_path)
+    vectorstore.persist()
     print("Vector store initialized.")
 
     documents = vectorstore.get()['documents']
@@ -113,7 +114,7 @@ def create_chroma_index():
     if len(documents) > 0:
         print("Sample document:", documents[0])
 
-    return vectorstore
+    return vectorstore, embedding_function
 
 
 # Additional example usage
