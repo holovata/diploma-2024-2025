@@ -16,7 +16,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Initialize the retriever outside of any handlers to ensure it's created only once
-retriever = create_vectorstore()
+# retriever = create_vectorstore()
 
 # Define a few command handlers. These usually take the two arguments update and context.
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -38,7 +38,7 @@ async def handle_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     query = update.message.text
 
     # Обработка запроса с использованием основной логики
-    response = process_query(retriever, query)
+    response = process_query(query)
 
     # Отправка ответа обратно пользователю
     await update.message.reply_text(response)

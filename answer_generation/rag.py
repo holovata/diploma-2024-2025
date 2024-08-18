@@ -19,49 +19,14 @@ from langchain_core.runnables import RunnableLambda, RunnablePassthrough
 
 from langchain_community.vectorstores.chroma import Chroma
 from langchain_community.embeddings import HuggingFaceEmbeddings
+import os
+from CONFIG import config
 
 
-def create_vectorstore():
-    '''# Создание таблиц
-    create_tables()
-
-    # Очистка таблицы перед вставкой новых данных
-    clear_table("keyword_papers_list")
-    print("begin fetching", datetime.datetime.now())
-    # Получение и вставка данных из arXiv по ключевому слову
-    keyword = "machine learning"  # Измените на нужное ключевое слово
-    fetch_and_store_papers(keyword, max_results=200)
-
-    keyword = "computation and language"  # Измените на нужное ключевое слово
-    fetch_and_store_papers(keyword, max_results=200)
-
-    keyword = "artificial intelligence"  # Измените на нужное ключевое слово
-    fetch_and_store_papers(keyword, max_results=1000)
-    print("end fetching", datetime.datetime.now())'''
-
-    import os
-
-    # Получаем путь к текущему файлу
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-
-    # Путь к директории chroma_store
-    chroma_store_dir = os.path.join(current_dir, '..', 'chroma_store')
-
-    # Создание векторного индекса
-    print("begin create_chroma_index", datetime.datetime.now())
-
-    # vectorstore, embedding_function = create_chroma_index()
-    embedding_function = HuggingFaceEmbeddings(
-        # model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
-        model_name="bert-base-multilingual-cased")
-    vectorstore = Chroma(persist_directory=r"C:\Work\mi41\ДИПЛОМ\диплом1\chroma_store", embedding_function=embedding_function)
-    print(f"Vector store document count: {len(vectorstore.get()['documents'])}")
-    print("end create_chroma_index", datetime.datetime.now())
-    retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
-    return retriever
-
-
-def process_query(retriever, query):
+def process_query(query, persist_dir=os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'chroma_store'))):
+    collection_name = 'papers_collection'
+    vectordb = Chroma(persist_directory=persist_dir, embedding_function=config.embedding_function, collection_name=collection_name)
+    retriever = vectordb.as_retriever()
     retrieved_docs = retriever.invoke(query)
     print(retrieved_docs)
 
@@ -118,14 +83,13 @@ def process_query(retriever, query):
 
 
 def main():
-    retriever = create_vectorstore()
     while True:
         query = input("\nQuery: ")
         if query == "exit":
             break
         if query.strip() == "":
             continue
-        answer = process_query(retriever, query)
+        answer = process_query(query)
         print(answer)
 
 
