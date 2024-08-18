@@ -1,7 +1,7 @@
 # database/db_fetch_and_store.py
 
 import arxiv
-from .db_insert import insert_paper
+from database.db_insert import insert_paper
 
 def fetch_and_store_papers(keyword, max_results=5):
     client = arxiv.Client()
@@ -28,3 +28,7 @@ def fetch_and_store_papers(keyword, max_results=5):
 
     except Exception as e:
         print(f"Error during fetching and storing papers: {e}")
+
+
+'''keyword = "machine learning"  # Измените на нужное ключевое слово
+fetch_and_store_papers(keyword, max_results=20)'''

@@ -17,7 +17,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnableLambda, RunnablePassthrough
 
-from langchain_community.vectorstores import Chroma
+from langchain_community.vectorstores.chroma import Chroma
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
 
@@ -54,7 +54,7 @@ def create_vectorstore():
     embedding_function = HuggingFaceEmbeddings(
         # model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
         model_name="bert-base-multilingual-cased")
-    vectorstore = Chroma(persist_directory=r"C:\Work\mi41\ДИПЛОМ\диплом1\chroma_store\0c7471f8-dfcc-423c-9b7d-714920786bb7", embedding_function=embedding_function)
+    vectorstore = Chroma(persist_directory=r"C:\Work\mi41\ДИПЛОМ\диплом1\chroma_store", embedding_function=embedding_function)
     print(f"Vector store document count: {len(vectorstore.get()['documents'])}")
     print("end create_chroma_index", datetime.datetime.now())
     retriever = vectorstore.as_retriever(search_kwargs={"k": 5})

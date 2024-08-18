@@ -51,4 +51,4 @@ def check_articles_exist():
 
 
 # Call the function to check articles
-check_articles_exist()
+# check_articles_exist()

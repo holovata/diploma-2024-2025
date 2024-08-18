@@ -1,6 +1,6 @@
 # database/db_vectorize.py
 import ollama
-from langchain_community.vectorstores import Chroma
+from langchain_community.vectorstores.chroma import Chroma
 from langchain_core.documents import Document
 from langchain_community.llms import Ollama
 import chromadb
@@ -68,8 +68,8 @@ def create_chroma_index():
     collection_name = 'papers_collection'
     # embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
     embedding_function = HuggingFaceEmbeddings(
-        # model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
-        model_name="bert-base-multilingual-cased")
+        model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
+        # model_name="bert-base-multilingual-cased")
 
     print("Fetching papers from database...")
     papers = get_all_papers()
@@ -106,7 +106,7 @@ def create_chroma_index():
     vectorstore = Chroma.from_texts(texts=texts, embedding=embedding_function,
                                     collection_name=collection_name, metadatas=metadatas,
                                     ids=ids, persist_directory=chroma_store_path)
-    vectorstore.persist()
+    vectorstore.persist()  # Убрать?
     print("Vector store initialized.")
 
     documents = vectorstore.get()['documents']
@@ -114,8 +114,10 @@ def create_chroma_index():
     if len(documents) > 0:
         print("Sample document:", documents[0])
 
-    return vectorstore, embedding_function
+    # return vectorstore, embedding_function
 
+
+# create_chroma_index()
 
 # Additional example usage
 def search_chroma_index(query, vectorstore, top_k):

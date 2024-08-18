@@ -1,7 +1,7 @@
 # database/db_clear.py
 
 import psycopg2
-from .db_config import get_db_connection
+from database.db_config import get_db_connection
 
 
 def clear_table(table_name):
@@ -14,3 +14,5 @@ def clear_table(table_name):
 
     except (Exception, psycopg2.DatabaseError) as error:
         print(f"Error while clearing table {table_name}:", error)
+
+# clear_table('keyword_papers_list')
